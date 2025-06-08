@@ -62,10 +62,3 @@ python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<CO
 > Cloned games are hidden and require an invitation code per default.
 >
 > Cloned challenges are disabled per default.
-
-# Caviats
-
->[!CAUTION]
-> This Python script will duplicate games and challenges with nearly all meta data (descriptions, hints, flags, scores).
->
-> Local attachments are not re-uploaded though. The script will use the existing (local) asset url and just define a new remote url using your instance's url. If you are cloning accross instances, I recommend re-uploading attachments. This only affects selfhosted, locally uploaded attachments and not remote URLs.
