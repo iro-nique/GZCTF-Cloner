@@ -76,7 +76,7 @@ python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<CO
 You can export a single game and its challenges onto disk:
 
 ````
-python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --export
+python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token>' --export
 ````
 The script will display games and prompt you for the game and challenges to export. All data is then stored as `backup.json` alongside downloaded attachments.
 
@@ -85,7 +85,7 @@ The script will display games and prompt you for the game and challenges to expo
 You can import a previously exported GZCTF game and its challenges:
 
 ````
-python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --import '<PATH-TO-BACKUP-JSON'
+python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token>' --import '<PATH-TO-BACKUP-JSON'
 ````
 
 The script will parse the backup JSON file and import the game as well as its challenges plus attachments onto your defined GZCTF instance.
