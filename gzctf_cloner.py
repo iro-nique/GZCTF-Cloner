@@ -207,7 +207,7 @@ def main():
             print("❌ No valid challenges selected.")
             return
 
-        title = input("🎮 New game title: ").strip()
+        title = input("\n🎮 New game title: ").strip()
         new_game = create_game(dst_sess, dst_url, title, args.invite_code)
         print(f"\n✅ Created game: {new_game['title']} (ID: {new_game['id']})")
         duplicate_selected_challenges(src_sess, dst_sess, src_url, dst_url, src_url, selected, new_game["id"])
