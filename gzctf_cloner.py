@@ -216,9 +216,9 @@ def main():
         print("\n📚 Available Games:")
         games.sort(key=lambda g: g["id"])
         for g in games:
-            print(f"{g['id']}: {g['title']}")
+            print(f"{g['id']:>3} | {g['title']}")
 
-        gid = input("🎯 Enter game ID to duplicate: ").strip()
+        gid = input("\n🎯 Enter game ID to duplicate: ").strip()
         original = next((g for g in games if str(g["id"]) == gid), None)
         if not original:
             print("❌ Invalid game ID")
@@ -231,9 +231,13 @@ def main():
 
         print(f"\n🧩 Found {len(chs)} challenges.")
         if input("💭 Duplicate all? (y/n): ").strip().lower() != "y":
+            print("\n📦 Available Challenges:")
+            chs.sort(key=lambda ch: ch["id"])
             for ch in chs:
                 pts = ch.get("score", 0)
-                print(f"{ch['id']:>3}: [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
+                game_title = original.get("title", "Unknown")
+                print(f"{ch['id']:>3} | {game_title:<10} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
+
             ids = input("🔢 IDs to copy: ").split(",")
             chs = [c for c in chs if str(c["id"]) in map(str.strip, ids)]
 
