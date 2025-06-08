@@ -1,3 +1,10 @@
+## [0.1.3](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.1.2...v0.1.3) (2025-06-08)
+
+
+### Bug Fixes
+
+* Update gzctf_cloner.py ([0701c23](https://github.com/l4rm4nd/GZCTF-Cloner/commit/0701c23365867e5f0cdfeba18a0799e04ff889a9))
+
 ## [0.1.2](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.1.1...v0.1.2) (2025-06-08)
 
 
