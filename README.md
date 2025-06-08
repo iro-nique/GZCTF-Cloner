@@ -3,7 +3,11 @@ Python 3 Script to Clone [GZCTF](https://github.com/GZTimeWalker/GZCTF) Games an
 
 ## Usage
 
-The script requires administrative cookie sessions to work. Please obtain your `GZCTF_Token` cookie(s) via developer tools.
+>[!TIP]
+>The script requires administrative cookie sessions to work.
+>Please obtain your `GZCTF_Token` cookie(s) via developer tools.
+>
+>You can also find a dockerized version as [GHCR.IO package](https://github.com/l4rm4nd/GZCTF-Cloner/pkgs/container/gzctf-cloner).
 
 ````
 usage: gzctf_cloner.py [-h] --url URL --token TOKEN [--invite-code INVITE_CODE] [--newgame] [--dst-url DST_URL]
