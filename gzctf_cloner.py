@@ -8,27 +8,14 @@ License: MIT
 
 Description:
     This script allows duplicating existing games and challenges on a GZCTF instance.
-    It supports two modes:
+    It supports three modes:
       - Clone an existing game and all/some of its challenges.
       - Create a new empty game and populate it with challenges selected from any game.
+      - Export an existing game onto disk for later re-import
 
-    Supports cross-instance duplication if --dst-url and --dst-token are supplied.
+    Supports cross-instance cloning if --dst-url and --dst-token are supplied.
     The script preserves flags, hints, metadata, and attachments.
-    All duplicated challenges are disabled by default.
-
-Usage:
-    Clone a game on the same instance:
-        python3 gzctf_cloner.py --url https://ctf.source.com --token '<GZCTF_Token>'
-
-    Create a new game from selected challenges:
-        python3 gzctf_cloner.py --url https://ctf.source.com --token '<GZCTF_Token>' --newgame
-
-    Cross-instance duplication:
-        python3 gzctf_cloner.py --url https://ctf.source.com --token '<GZCTF_Token>' \
-            --dst-url https://ctf.dest.com --dst-token '<GZCTF_Token>'
-
-    Custom invite code:
-        python3 gzctf_cloner.py --url https://ctf.example.com --token '<GZCTF_Token>' --invite-code MYCODE123
+    All duplicated games are hidden and challenges disabled by default.
 """
 
 import requests
@@ -38,6 +25,9 @@ import secrets
 import sys
 import os
 import io
+import json
+from urllib.parse import urlparse
+from datetime import datetime
 
 def generate_invite_code(length=24):
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
@@ -188,6 +178,196 @@ def duplicate_selected_challenges(src_sess, dst_sess, src_base, dst_base, full_u
         except Exception as e:
             print(f"❌ Failed to clone challenge {ch['id']}: {e}")
 
+
+def sanitize_filename(name):
+    return "".join(c if c.isalnum() or c in "-_" else "_" for c in name.strip())
+
+def export_game_prompt(session, base_url):
+    games = fetch_games(session, base_url)
+    if not games:
+        print("❌ No games available.")
+        return
+
+    print("\n📚 Available Games:")
+    games.sort(key=lambda g: g["id"])
+    for g in games:
+        print(f"{g['id']:>3} | {g['title']}")
+    
+    gid = input("\n🎯 Enter game ID to export: ").strip()
+    game = next((g for g in games if str(g["id"]) == gid), None)
+    if not game:
+        print("❌ Invalid game ID")
+        return
+
+    chs_raw = fetch_challenges(session, base_url, game["id"])
+    challenges = []
+    for ch in chs_raw:
+        try:
+            full = fetch_challenge_config(session, base_url, game["id"], ch["id"])
+            full["originalScore"] = full.get("originalScore", ch.get("score", 0))
+            full["game_id"] = game["id"]
+            challenges.append(full)
+        except Exception as e:
+            print(f"⚠️ Failed to fetch full config for challenge {ch['id']}: {e}")
+
+    if not challenges:
+        print("⚠️ No challenges found.")
+        return
+
+    print("\n📦 Available Challenges:")
+    for ch in challenges:
+        print(f"{ch['id']:>3} | [{ch.get('category', '-')}] {ch['title']} ({ch.get('originalScore', 0)} pts)")
+
+    ids = input("\n🔢 Enter challenge IDs to export (comma-separated), or press Enter to export all: ").strip()
+
+    if not ids:
+        selected = challenges
+    else:
+        id_list = [s.strip() for s in ids.split(",")]
+        selected = [ch for ch in challenges if str(ch["id"]) in id_list]
+        if not selected:
+            print("❌ No valid challenges selected.")
+            return
+
+    # Generate output paths
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    host = urlparse(base_url).netloc.replace(":", "-")
+    safe_title = sanitize_filename(game["title"])[:40]
+    base_folder = f"gzctf-backup-{timestamp}-{host}-{safe_title}"
+    os.makedirs(os.path.join(base_folder, "attachments"), exist_ok=True)
+
+    backup = {
+        "game": {
+            "title": game["title"],
+            "summary": game.get("summary", ""),
+            "inviteCode": generate_invite_code()
+        },
+        "challenges": []
+    }
+
+    for ch in selected:
+        backup_ch = {
+            k: ch.get(k) for k in [
+                "title", "category", "type", "content", "flagTemplate",
+                "originalScore", "minScoreRate", "difficulty", "containerImage",
+                "memoryLimit", "cpuCount", "storageLimit", "containerExposePort",
+                "enableTrafficCapture", "disableBloodBonus", "hints"
+            ]
+        }
+        backup_ch["flags"] = ch.get("flags", [])
+
+        att = ch.get("attachment")
+        if att and att.get("url"):
+            if att.get("type") == "Local":
+                filename = att["url"].split("/")[-1]
+                download_url = base_url + att["url"]
+                try:
+                    res = session.get(download_url)
+                    res.raise_for_status()
+                    with open(os.path.join(base_folder, "attachments", filename), "wb") as f:
+                        f.write(res.content)
+                    backup_ch["attachment"] = {"type": "Local", "filename": filename}
+                    print(f"📎 Saved attachment: {filename}")
+                except Exception as e:
+                    print(f"⚠️ Failed to download attachment for {ch['title']}: {e}")
+            elif att.get("type") == "Remote":
+                backup_ch["attachment"] = {"type": "Remote", "url": att["url"]}
+
+        backup["challenges"].append(backup_ch)
+
+    backup_path = os.path.join(base_folder, "backup.json")
+    with open(backup_path, "w") as f:
+        json.dump(backup, f, indent=2)
+    
+    print(f"\n✅ Exported backup to {backup_path}")
+
+def import_game_from_backup(session, base_url, backup_path):
+    import json
+
+    if not os.path.exists(backup_path):
+        print(f"❌ Backup file not found: {backup_path}")
+        return
+
+    backup_dir = os.path.dirname(backup_path)
+    with open(backup_path, "r") as f:
+        backup = json.load(f)
+
+    game_meta = backup.get("game", {})
+    title = game_meta.get("title", "Restored Game")
+    invite_code = game_meta.get("inviteCode")
+
+    print(f"\n📥 Importing game: {title}")
+    new_game = create_game(session, base_url, title + " (Imported)", invite_code)
+    print(f"✅ Created game: {new_game['title']} (ID: {new_game['id']})")
+
+    for ch in backup.get("challenges", []):
+        try:
+            score = ch.get("originalScore", 100)
+            ch_minimal = {
+                "title": ch.get("title"),
+                "category": ch.get("category", "Misc"),
+                "type": ch.get("type", "StaticAttachment"),
+                "isEnabled": False,
+                "score": score,
+                "minScore": score,
+                "originalScore": score
+            }
+
+            created = session.post(
+                f"{base_url}/api/edit/games/{new_game['id']}/challenges", json=ch_minimal
+            )
+            created.raise_for_status()
+            ch_id = created.json()["id"]
+
+            # Update challenge with full metadata
+            patch_fields = {
+                k: ch.get(k) for k in [
+                    "title", "content", "flagTemplate", "category", "hints", "fileName",
+                    "containerImage", "memoryLimit", "cpuCount", "storageLimit",
+                    "containerExposePort", "enableTrafficCapture", "disableBloodBonus",
+                    "originalScore", "minScoreRate", "difficulty"
+                ] if ch.get(k) is not None
+            }
+
+            session.put(f"{base_url}/api/edit/games/{new_game['id']}/challenges/{ch_id}", json=patch_fields)
+
+            # Restore flags
+            if ch.get("flags"):
+                flags = [{"flag": f["flag"]} for f in ch["flags"]]
+                session.post(
+                    f"{base_url}/api/edit/games/{new_game['id']}/challenges/{ch_id}/flags",
+                    json=flags
+                )
+
+            # Restore attachment
+            att = ch.get("attachment")
+            if att:
+                if att.get("type") == "Remote":
+                    session.post(
+                        f"{base_url}/api/edit/games/{new_game['id']}/challenges/{ch_id}/attachment",
+                        json={"attachmentType": "Remote", "remoteUrl": att["url"]}
+                    )
+                elif att.get("type") == "Local":
+                    filename = att["filename"]
+                    full_path = os.path.join(backup_dir, "attachments", filename)
+                    if os.path.exists(full_path):
+                        with open(full_path, "rb") as f:
+                            files = {"files": (filename, f, "application/octet-stream")}
+                            upload_res = session.post(f"{base_url}/api/assets", files=files)
+                            upload_res.raise_for_status()
+                            asset = upload_res.json()[0]
+                            session.post(
+                                f"{base_url}/api/edit/games/{new_game['id']}/challenges/{ch_id}/attachment",
+                                json={"attachmentType": "Local", "fileHash": asset["hash"]}
+                            )
+                    else:
+                        print(f"⚠️ Attachment file not found: {full_path}")
+
+            print(f"✅ Imported challenge: {ch['title']}")
+
+        except Exception as e:
+            print(f"❌ Failed to import challenge {ch.get('title', '???')}: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="GZCTF Cloner via Token")
     parser.add_argument("--url", required=True, help="Source base URL")
@@ -196,6 +376,8 @@ def main():
     parser.add_argument("--newgame", action="store_true", help="New game from selected challenges")
     parser.add_argument("--dst-url", help="Destination base URL")
     parser.add_argument("--dst-token", help="Destination GZCTF_Token cookie value")
+    parser.add_argument("--export", action="store_true", help="Export a game's backup to JSON")
+    parser.add_argument("--import", dest="import_file", help="Path to backup.json to restore a game from")
 
     args = parser.parse_args()
 
@@ -207,6 +389,14 @@ def main():
     dst_sess = session_with_token(dst_url, dst_token)
 
     games = fetch_games(src_sess, src_url)
+
+    if args.export:
+        export_game_prompt(src_sess, src_url)
+        return
+
+    if args.import_file:
+        import_game_from_backup(src_sess, src_url, args.import_file)
+        return
 
     if args.newgame:
         all_challenges = []
