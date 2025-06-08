@@ -1,11 +1,15 @@
 # GZCTF-Cloner
-.: Easily duplicate GZCTF games and challenges across instances :.
+.: Easily duplicate or backup GZCTF games and challenges :.
 
 ✅ Supports cloning of:
 - Game metadata and settings
 - Challenge titles, descriptions, and scores
 - Flags and hints
 - Local and remote attachments (with automatic re-upload)
+
+💾 Supports exporting and importing:
+- Export existing games and challenges onto disc (json)
+- Import previously exported games and challenges into a GZCTF instance
 
 > [!WARNING]
 > Cloned games are hidden and require an invitation code per default. Please adjust game settings to your needs.
@@ -66,3 +70,22 @@ python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<CO
 # clone specific challenges accross games
 python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --dst-url 'https://ctf2.example.com' --dst-token 'GZCTF_Token-<COOKIE-2>' --newgame
 ````
+
+### Exporting Game as Backup
+
+You can export a single game and its challenges onto disk:
+
+````
+python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --export
+````
+The script will display games and prompt you for the game and challenges to export. All data is then stored as `backup.json` alongside downloaded attachments.
+
+### Importing Game from Backup
+
+You can import a previously exported GZCTF game and its challenges:
+
+````
+python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --import '<PATH-TO-BACKUP-JSON'
+````
+
+The script will parse the backup JSON file and import the game as well as its challenges plus attachments onto your defined GZCTF instance.
