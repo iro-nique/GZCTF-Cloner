@@ -8,7 +8,7 @@
 - Local and remote attachments (with automatic re-upload)
 
 💾 Supports exporting and importing:
-- Export existing games and challenges onto disc (json)
+- Export existing games and challenges onto disc (json + attachment files)
 - Import previously exported games and challenges into a GZCTF instance
 
 > [!WARNING]
