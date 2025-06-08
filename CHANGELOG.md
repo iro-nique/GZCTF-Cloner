@@ -1,3 +1,10 @@
+## [0.2.0](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.1.3...v0.2.0) (2025-06-08)
+
+
+### Features
+
+* support attachment duplication and cloning disabled challenges ([8714878](https://github.com/l4rm4nd/GZCTF-Cloner/commit/87148785e040279cfa681b6b351cc77728a5790a))
+
 ## [0.1.3](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.1.2...v0.1.3) (2025-06-08)
 
 
