@@ -44,7 +44,7 @@ If you'd like to clone specific CTF challenges across all games:
 python3 gzctf_cloner.py --url 'https://ctf.example.com' --token '<GZCTF_Token>' --newgame
 ````
 
-The script will display all available challenges and prompt you for the challenges to clone.
+The script will display all available challenges and prompt you for the challenges to clone as well as for a new game name.
 
 ### Cloning Across Different GZCTF Instances
 
@@ -58,9 +58,14 @@ python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<CO
 python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --dst-url 'https://ctf2.example.com' --dst-token 'GZCTF_Token-<COOKIE-2>' --newgame
 ````
 
+> [!WARNING]
+> Cloned games are hidden and require an invitation code per default.
+>
+> Cloned challenges are disabled per default.
+
 # Caviats
 
->[!WARNING]
+>[!CAUTION]
 > This Python script will duplicate games and challenges with nearly all meta data (descriptions, hints, flags, scores).
 >
 > Local attachments are not re-uploaded though. The script will use the existing (local) asset url and just define a new remote url using your instance's url. If you are cloning accross instances, I recommend re-uploading attachments. This only affects selfhosted, locally uploaded attachments and not remote URLs.
