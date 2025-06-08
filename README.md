@@ -16,15 +16,14 @@ usage: gzctf_cloner.py [-h] --url URL --token TOKEN [--invite-code INVITE_CODE] 
 GZCTF Cloner via Token
 
 options:
-  -h, --help            show this help message and exit
-  --url URL             Source base URL
-  --token TOKEN         GZCTF_Token for source session
-  --invite-code INVITE_CODE
-                        Custom invite code
-  --newgame             New game from selected challenges
-  --dst-url DST_URL     Destination base URL
-  --dst-token DST_TOKEN
-                        Destination GZCTF_Token
+  -h, --help                    show this help message and exit
+  --url URL                     Source base URL
+  --token TOKEN                 GZCTF_Token for source session
+  --invite-code INVITE_CODE     Custom invite code
+                              
+  --newgame                     New game from selected challenges
+  --dst-url DST_URL             Destination base URL
+  --dst-token DST_TOKEN         Destination GZCTF_Token
 ````
 
 ### Cloning Single Game
