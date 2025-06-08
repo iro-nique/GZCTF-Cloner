@@ -1,5 +1,5 @@
-
 #!/usr/bin/env python3
+
 """
 GZCTF Game and Challenge Cloner
 
