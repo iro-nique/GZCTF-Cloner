@@ -34,7 +34,7 @@ If you'd like to clone a single CTF game to the same instance:
 python3 gzctf_cloner.py --url 'https://ctf.example.com' --token '<GZCTF_Token>'
 ````
 
-The script will display games and prompt you for the game and which challenges to clone.
+The script will display games and prompt you for the game and challenges to clone.
 
 ### Cloning Specific Challenges Across All Games
 
@@ -44,7 +44,7 @@ If you'd like to clone specific CTF challenges across all games:
 python3 gzctf_cloner.py --url 'https://ctf.example.com' --token '<GZCTF_Token>' --newgame
 ````
 
-The script will display challenges and prompt you for the challenges to clone.
+The script will display all available challenges and prompt you for the challenges to clone.
 
 ### Cloning Across Different GZCTF Instances
 
