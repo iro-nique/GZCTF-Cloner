@@ -238,7 +238,7 @@ def main():
                 game_title = original.get("title", "Unknown")
                 print(f"{ch['id']:>3} | {game_title:<10} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
 
-            ids = input("🔢 IDs to copy: ").split(",")
+            ids = input("\n🔢 IDs to copy: ").split(",")
             chs = [c for c in chs if str(c["id"]) in map(str.strip, ids)]
 
         new_game = create_game(dst_sess, dst_url, original["title"] + " (Copy)", args.invite_code)
