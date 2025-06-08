@@ -1,13 +1,22 @@
 # GZCTF-Cloner
-Python 3 Script to Clone [GZCTF](https://github.com/GZTimeWalker/GZCTF) Games and Challenges
+.: Easily duplicate GZCTF games and challenges across instances :.
+
+✅ Supports cloning of:
+- Game metadata and settings
+- Challenge titles, descriptions, and scores
+- Flags and hints
+- Local and remote attachments (with automatic re-upload)
+
+> [!WARNING]
+> Cloned games are hidden and require an invitation code per default. Please adjust game settings to your needs.
+> All cloned challenges are disabled by default to prevent unintended exposure and to require manual review before publishing.
 
 ## Usage
 
 >[!TIP]
 >The script requires administrative cookie sessions to work.
 >Please obtain your `GZCTF_Token` cookie(s) via developer tools.
->
->You can also find a dockerized version as [GHCR.IO package](https://github.com/l4rm4nd/GZCTF-Cloner/pkgs/container/gzctf-cloner).
+>You can also find a dockerized version [here](https://github.com/l4rm4nd/GZCTF-Cloner/pkgs/container/gzctf-cloner).
 
 ````
 usage: gzctf_cloner.py [-h] --url URL --token TOKEN [--invite-code INVITE_CODE] [--newgame] [--dst-url DST_URL]
@@ -57,8 +66,3 @@ python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<CO
 # clone specific challenges accross games
 python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<COOKIE-1>' --dst-url 'https://ctf2.example.com' --dst-token 'GZCTF_Token-<COOKIE-2>' --newgame
 ````
-
-> [!WARNING]
-> Cloned games are hidden and require an invitation code per default.
->
-> Cloned challenges are disabled per default.
