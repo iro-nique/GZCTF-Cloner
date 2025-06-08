@@ -36,6 +36,8 @@ import argparse
 import time
 import secrets
 import sys
+import os
+import io
 
 def generate_invite_code(length=24):
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
@@ -58,14 +60,12 @@ def fetch_games(session, base_url):
 
 def fetch_challenges(session, base_url, game_id):
     try:
-        r = session.get(f"{base_url}/api/game/{game_id}/details")
+        r = session.get(f"{base_url}/api/edit/games/{game_id}/challenges")
         r.raise_for_status()
-        flat = []
-        for category in r.json().get("challenges", {}):
-            for ch in r.json()["challenges"][category]:
-                ch["game_id"] = game_id
-                flat.append(ch)
-        return flat
+        chs = r.json()
+        for ch in chs:
+            ch["game_id"] = game_id
+        return chs
     except Exception as e:
         print(f"❌ Failed to fetch challenges for game {game_id}: {e}")
         return []
@@ -137,11 +137,42 @@ def duplicate_flags(session, base_url, game_id, cid, flags):
     r.raise_for_status()
 
 def duplicate_attachment(session, base_url, full_url_base, game_id, cid, attachment):
-    if not attachment or not attachment.get("url"): return
-    remote_url = full_url_base + attachment["url"]
-    data = {"attachmentType": "Remote", "remoteUrl": remote_url}
-    r = session.post(f"{base_url}/api/edit/games/{game_id}/challenges/{cid}/attachment", json=data)
-    r.raise_for_status()
+    if not attachment or not attachment.get("url"):
+        return
+
+    if attachment.get("type") == "Remote":
+        remote_url = attachment["url"]
+        data = {"attachmentType": "Remote", "remoteUrl": remote_url}
+        r = session.post(f"{base_url}/api/edit/games/{game_id}/challenges/{cid}/attachment", json=data)
+        r.raise_for_status()
+        return
+
+    elif attachment.get("type") == "Local":
+        download_url = full_url_base + attachment["url"]
+        try:
+            # Download the file
+            res = session.get(download_url)
+            res.raise_for_status()
+            file_data = res.content
+            file_name = attachment["url"].split("/")[-1]
+
+            # Upload to /api/assets
+            files = {'files': (file_name, io.BytesIO(file_data), 'application/octet-stream')}
+            upload_res = session.post(f"{base_url}/api/assets", files=files)
+            upload_res.raise_for_status()
+            assets = upload_res.json()
+
+            if not assets or "hash" not in assets[0]:
+                raise ValueError("Invalid upload response: missing hash")
+
+            file_hash = assets[0]["hash"]
+
+            # Link the uploaded asset to the challenge
+            link_payload = {"attachmentType": "Local", "fileHash": file_hash}
+            r = session.post(f"{base_url}/api/edit/games/{game_id}/challenges/{cid}/attachment", json=link_payload)
+            r.raise_for_status()
+        except Exception as e:
+            print(f"❌ Failed to duplicate Local attachment for challenge {cid}: {e}")
 
 def duplicate_selected_challenges(src_sess, dst_sess, src_base, dst_base, full_url_base, challenges, new_game_id):
     for ch in challenges:
@@ -198,7 +229,7 @@ def main():
         print("\n📦 Available Challenges:")
         for ch in all_challenges:
             pts = ch.get("originalScore", ch.get("score", 0))
-            print(f"{ch['id']:>3} | {ch['game_title']:<20} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
+            print(f"{ch['id']:>3} | {ch['game_title']:<3} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
 
         print()
         ids = input("🔢 Enter challenge IDs to clone (comma-separated): ").split(",")
@@ -224,7 +255,15 @@ def main():
             print("❌ Invalid game ID")
             return
 
-        chs = fetch_challenges(src_sess, src_url, original["id"])
+        chs_raw = fetch_challenges(src_sess, src_url, original["id"])
+        chs = []
+        for ch in chs_raw:
+            try:
+                full = fetch_challenge_config(src_sess, src_url, original["id"], ch["id"])
+                ch["originalScore"] = full.get("originalScore", ch.get("score", 0))
+            except:
+                ch["originalScore"] = ch.get("score", 0)
+            chs.append(ch)
         if not chs:
             print("⚠️ No challenges found in selected game.")
             return
@@ -234,7 +273,7 @@ def main():
             print("\n📦 Available Challenges:")
             chs.sort(key=lambda ch: ch["id"])
             for ch in chs:
-                pts = ch.get("score", 0)
+                pts = ch.get("originalScore", ch.get("score", 0))
                 game_title = original.get("title", "Unknown")
                 print(f"{ch['id']:>3} | {game_title:<10} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
 
