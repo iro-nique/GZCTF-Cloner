@@ -63,4 +63,4 @@ python3 gzctf_cloner.py --url 'https://ctf.example.com' --token 'GZCTF_Token-<CO
 >[!WARNING]
 > This Python script will duplicate games and challenges with nearly all meta data (descriptions, hints, flags, scores).
 >
-> Attachments are not re-uploaded though. The script will use the existing (local) asset url and just define a new remote url using the instance's url. If you are cloning accross instances, I recommend re-uploading attachments.
+> Local attachments are not re-uploaded though. The script will use the existing (local) asset url and just define a new remote url using your instance's url. If you are cloning accross instances, I recommend re-uploading attachments. This only affects selfhosted, locally uploaded attachments and not remote URLs.
