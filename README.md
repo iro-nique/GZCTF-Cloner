@@ -37,8 +37,8 @@ options:
   --newgame                     New game from selected challenges
   --dst-url DST_URL             Destination base URL
   --dst-token DST_TOKEN         Destination GZCTF_Token
-  --export                      Export a game's backup to JSON
-  --import IMPORT_FILE          Path to backup.json to restore a game from
+  --export                      Export a game as backup
+  --import IMPORT_FILE          Import a game from backup
 ````
 
 ### Cloning Single Game
