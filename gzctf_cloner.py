@@ -422,11 +422,15 @@ def main():
             print(f"{ch['id']:>3} | {ch['game_title']:<3} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
 
         print()
-        ids = input("🔢 Enter challenge IDs to clone (comma-separated): ").split(",")
-        selected = [ch for ch in all_challenges if str(ch["id"]) in map(str.strip, ids)]
-        if not selected:
-            print("❌ No valid challenges selected.")
-            return
+        ids = input("\n🔢 Enter challenge IDs to export (comma-separated), or press Enter to export all: ").strip()
+
+        if not ids:
+            selected = all_challenges
+        else:
+            selected = [ch for ch in all_challenges if str(ch["id"]) in map(str.strip, ids)]
+            if not selected:
+                print("❌ No valid challenges selected.")
+                return
 
         title = input("\n🎮 New game title: ").strip()
         new_game = create_game(dst_sess, dst_url, title, args.invite_code)
