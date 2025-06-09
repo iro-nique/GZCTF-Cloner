@@ -1,3 +1,10 @@
+## [0.3.3](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.3.2...v0.3.3) (2025-06-09)
+
+
+### Bug Fixes
+
+* argparse help text ([4d86bfe](https://github.com/l4rm4nd/GZCTF-Cloner/commit/4d86bfe7414bb74206ff709e06fef97287b4723d))
+
 ## [0.3.2](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.3.1...v0.3.2) (2025-06-09)
 
 
@@ -25,11 +32,4 @@
 ### Features
 
 * support attachment duplication and cloning disabled challenges ([8714878](https://github.com/l4rm4nd/GZCTF-Cloner/commit/87148785e040279cfa681b6b351cc77728a5790a))
-
-## [0.1.3](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.1.2...v0.1.3) (2025-06-08)
-
-
-### Bug Fixes
-
-* Update gzctf_cloner.py ([0701c23](https://github.com/l4rm4nd/GZCTF-Cloner/commit/0701c23365867e5f0cdfeba18a0799e04ff889a9))
 
