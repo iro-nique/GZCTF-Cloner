@@ -376,8 +376,8 @@ def main():
     parser.add_argument("--newgame", action="store_true", help="New game from selected challenges")
     parser.add_argument("--dst-url", help="Destination base URL")
     parser.add_argument("--dst-token", help="Destination GZCTF_Token cookie value")
-    parser.add_argument("--export", action="store_true", help="Export a game's backup to JSON")
-    parser.add_argument("--import", dest="import_file", help="Path to backup.json to restore a game from")
+    parser.add_argument("--export", action="store_true", help="Export a game as backup")
+    parser.add_argument("--import", dest="import_file", help="Import a game from backup")
 
     args = parser.parse_args()
 
