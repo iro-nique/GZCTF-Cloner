@@ -421,7 +421,6 @@ def main():
             pts = ch.get("originalScore", ch.get("score", 0))
             print(f"{ch['id']:>3} | {ch['game_title']:<3} | [{ch.get('category','-')}] {ch['title']} ({pts} pts)")
 
-        print()
         ids = input("\n🔢 Enter challenge IDs to export (comma-separated), or press Enter to export all: ").strip()
 
         if not ids:
