@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.3.0...v0.3.1) (2025-06-09)
+
+
+### Bug Fixes
+
+* allow to select all challenges when --newgame ([f1f8c21](https://github.com/l4rm4nd/GZCTF-Cloner/commit/f1f8c214e7a058555addf5a0f6b8ef7521bb0218))
+
 ## [0.3.0](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.2.0...v0.3.0) (2025-06-08)
 
 
@@ -25,11 +32,4 @@
 ### Bug Fixes
 
 * Update gzctf_cloner.py ([3e983d6](https://github.com/l4rm4nd/GZCTF-Cloner/commit/3e983d6ab51fd7ac52a2be9927381c2ab9b76db1))
-
-## [0.1.1](https://github.com/l4rm4nd/GZCTF-Cloner/compare/v0.1.0...v0.1.1) (2025-06-08)
-
-
-### Bug Fixes
-
-* adjust formatting ([d6f2f86](https://github.com/l4rm4nd/GZCTF-Cloner/commit/d6f2f86b1d42c50e226310c57ec7bbb7ce2e3255))
 
